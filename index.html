@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<!-- saved from url=(0073)file:///Users/diegoperez/Downloads/crayola_portfolio_dashboard%20(1).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crayola — Innovation Portfolio Dashboard</title>
+<script src="./index_files/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #f0ede8;
+    --text-primary: #1a1a1a; --text-secondary: #6b6b6b; --text-tertiary: #999999;
+    --border: rgba(0,0,0,0.12); --border-strong: rgba(0,0,0,0.25);
+    --radius-md: 8px; --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --h1-color: #639922; --h2-color: #378ADD; --h3-color: #BA7517;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1c; --bg-secondary: #272727; --bg-tertiary: #2f2f2f;
+      --text-primary: #f0ede8; --text-secondary: #a8a8a8; --text-tertiary: #666666;
+      --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.22);
+    }
+  }
+  body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* NAV TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--bg-secondary); padding: 4px; border-radius: var(--radius-md); width: fit-content; }
+  .tab { font-size: 13px; padding: 7px 18px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+  .tab.active { background: var(--bg); color: var(--text-primary); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* HEADER */
+  .header { margin-bottom: 1.5rem; }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .logo { width: 36px; height: 36px; border-radius: 50%; background: #FFD700; border: 2px solid #CC0000; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #CC0000; flex-shrink: 0; }
+  h1 { font-size: 22px; font-weight: 500; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric { background: var(--bg); border-radius: var(--radius-md); padding: 1rem; border: 0.5px solid var(--border); }
+  .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .metric-value { font-size: 24px; font-weight: 500; }
+  .metric-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 13px; color: var(--text-secondary); }
+  .pill { font-size: 12px; padding: 5px 14px; border-radius: 99px; border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-family: var(--font); }
+  .pill:hover { background: var(--bg-secondary); }
+  .pill.active-all { background: var(--bg-secondary); border-color: var(--border-strong); color: var(--text-primary); font-weight: 500; }
+  .pill.active-h1 { background: #EAF3DE; border-color: #639922; color: #3B6D11; font-weight: 500; }
+  .pill.active-h2 { background: #E6F1FB; border-color: #378ADD; color: #185FA5; font-weight: 500; }
+  .pill.active-h3 { background: #FAEEDA; border-color: #BA7517; color: #854F0B; font-weight: 500; }
+  .pill.active-y1 { background: #EEEDFE; border-color: #7F77DD; color: #3C3489; font-weight: 500; }
+
+  /* TABLE */
+  .table-wrap { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.5rem; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
+  thead tr { background: var(--bg-secondary); }
+  th { padding: 10px 14px; text-align: left; font-weight: 500; color: var(--text-secondary); font-size: 11px; border-bottom: 0.5px solid var(--border); white-space: nowrap; letter-spacing: 0.03em; text-transform: uppercase; }
+  td { padding: 12px 14px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.project-row:hover { background: var(--bg-secondary); cursor: pointer; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+  .h1 { background: #EAF3DE; color: #3B6D11; }
+  .h2 { background: #E6F1FB; color: #185FA5; }
+  .h3 { background: #FAEEDA; color: #854F0B; }
+  .y1 { background: #EEEDFE; color: #3C3489; }
+  .y2 { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .budget-val { font-weight: 500; white-space: nowrap; }
+  .total-val { color: var(--text-secondary); white-space: nowrap; }
+  .tbd { color: var(--text-tertiary); font-style: italic; font-size: 12px; }
+  .expand-btn { background: none; border: 0.5px solid var(--border); cursor: pointer; color: var(--text-tertiary); font-size: 14px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font); transition: all 0.15s; }
+  .expand-btn:hover { background: var(--bg-secondary); }
+  .detail-row { display: none; }
+  .detail-row.open { display: table-row; }
+  .detail-row td { background: var(--bg-secondary); padding: 12px 14px 14px 44px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; border-bottom: 0.5px solid var(--border); }
+  .total-row td { background: var(--bg-secondary); font-weight: 500; border-top: 1px solid var(--border-strong); }
+
+  /* CARDS */
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .card-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1rem; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* LEGEND */
+  .legend { margin-top: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12px; color: var(--text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .legend-val { margin-left: auto; font-weight: 500; color: var(--text-primary); }
+
+  /* BARS */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .bar-name { font-size: 11px; color: var(--text-secondary); width: 160px; flex-shrink: 0; text-align: right; line-height: 1.3; }
+  .bar-track { flex: 1; height: 22px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; transition: width 0.5s ease; }
+  .bar-fill span { font-size: 11px; font-weight: 500; color: #fff; }
+  .bar-amt { font-size: 11px; color: var(--text-tertiary); width: 32px; }
+
+  /* TIMELINE */
+  .timeline-grid { display: grid; grid-template-columns: 200px 1fr 1fr 1fr; gap: 0; font-size: 12px; }
+  .tg-header { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 0.5px solid var(--border); }
+  .tg-name { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); font-weight: 500; display: flex; align-items: center; }
+  .tg-cell { padding: 8px 12px; border-bottom: 0.5px solid var(--border); border-left: 0.5px solid var(--border); display: flex; align-items: center; }
+  .tg-bar { height: 24px; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 500; color: #fff; white-space: nowrap; }
+  .tg-prep { height: 24px; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--text-secondary); border: 1.5px dashed; white-space: nowrap; }
+
+  /* BUDGET CALCULATOR */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 700px) { .calc-grid { grid-template-columns: 1fr; } }
+  .slider-row { margin-bottom: 1.25rem; }
+  .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .slider-name { font-size: 13px; color: var(--text-secondary); }
+  .slider-val { font-size: 14px; font-weight: 500; color: var(--text-primary); min-width: 50px; text-align: right; }
+  input[type=range] { width: 100%; accent-color: var(--h1-color); }
+  .calc-result { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; }
+  .calc-result-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .calc-result-row:last-child { border-bottom: none; font-weight: 500; font-size: 14px; }
+  .calc-note { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.5; }
+  .roi-badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; background: #EAF3DE; color: #3B6D11; }
+
+  /* REVENUE */
+  .rev-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 0.5px solid var(--border); }
+  .rev-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .rev-name { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .rev-invest { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .rev-bar-wrap { flex: 2; }
+  .rev-bar-track { height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: visible; position: relative; }
+  .rev-bar-fill { height: 100%; border-radius: 4px; position: relative; }
+  .rev-range { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+  .rev-roi { font-size: 12px; font-weight: 500; color: #3B6D11; white-space: nowrap; }
+
+  .footer { margin-top: 2rem; text-align: center; font-size: 11px; color: var(--text-tertiary); }
+  .banner { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .banner strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">C</div>
+      <div>
+        <h1>Innovation Portfolio Dashboard</h1>
+        <div class="subtitle">Crayola · 90-Day Innovation Plan · 2026–2027 · Innovation: $30M + Culture: $3M = $33M Year 1 Total</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Innovation budget Year 1</div>
+      <div class="metric-value">$30M</div>
+      <div class="metric-sub">12 projects · 2026–27</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Culture budget Year 1</div>
+      <div class="metric-value">$3M</div>
+      <div class="metric-sub">Talent · structure · capability</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total Year 1 ask</div>
+      <div class="metric-value">$33M</div>
+      <div class="metric-sub">3.4% of revenue · in-range benchmark</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Projected 2027–28 return</div>
+      <div class="metric-value">$67–92M</div>
+      <div class="metric-sub">~2x on $33M total ask · H1 only</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(event,&#39;portfolio&#39;)">Portfolio</button>
+    <button class="tab" onclick="switchTab(event,&#39;timeline&#39;)">Timeline</button>
+    <button class="tab" onclick="switchTab(event,&#39;revenue&#39;)">Revenue</button>
+    <button class="tab" onclick="switchTab(event,&#39;calculator&#39;)">Budget calculator</button>
+  </div>
+
+  <!-- PORTFOLIO TAB -->
+  <div id="tab-portfolio" class="tab-content active">
+    <div class="filters">
+      <span class="filter-label">Filter:</span>
+      <button class="pill active-all" onclick="filterTable(&#39;all&#39;)">All projects</button>
+      <button class="pill" onclick="filterTable(&#39;H1&#39;)">H1 — protect core</button>
+      <button class="pill" onclick="filterTable(&#39;H2&#39;)">H2 — build next</button>
+      <button class="pill" onclick="filterTable(&#39;H3&#39;)">H3 — future bet</button>
+      <button class="pill" onclick="filterTable(&#39;2026&#39;)">Launching 2026</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px;">#</th>
+            <th>Project</th>
+            <th>Horizon</th>
+            <th>Starts</th>
+            <th>Year 1 budget</th>
+            <th>Total investment</th>
+            <th>Est. ROI</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">1</td>
+      <td style="font-weight:500;">Plant-Based Reformulation</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$3M</td>
+      <td class="total-val">~$12M</td>
+      <td class="budget-val" style="color:#639922;">2.5x</td>
+      <td><button class="expand-btn" id="btn-1" onclick="event.stopPropagation();toggleDetail(1)">+</button></td>
+    </tr><tr class="detail-row" id="detail-1"><td colspan="8">15 states + EU restricting petroleum-based products. Regulatory risk is active now. Covers launch, positioning and retail rollout.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">2</td>
+      <td style="font-weight:500;">Ultra-Clean Certified Line</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$2M</td>
+      <td class="total-val">~$7M</td>
+      <td class="budget-val" style="color:#639922;">3.2x</td>
+      <td><button class="expand-btn" id="btn-2" onclick="event.stopPropagation();toggleDetail(2)">+</button></td>
+    </tr><tr class="detail-row" id="detail-2"><td colspan="8">Parents reading labels. Third-party certification commands 20–30% price premium. Covers certification, premium packaging and launch.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">3</td>
+      <td style="font-weight:500;">Screen Break Subscription</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$5M</td>
+      <td class="total-val">~$14M</td>
+      <td class="budget-val" style="color:#639922;">3.6x</td>
+      <td><button class="expand-btn" id="btn-3" onclick="event.stopPropagation();toggleDetail(3)">+</button></td>
+    </tr><tr class="detail-row" id="detail-3"><td colspan="8">65% of parents buy craft kits to reduce screen time. 50K subscribers at $30/month = $18M ARR. Covers platform build, kit design and marketing.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">4</td>
+      <td style="font-weight:500;">Educator Partnership Program</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$4M</td>
+      <td class="total-val">~$10M</td>
+      <td class="budget-val" style="color:#639922;">1.9x</td>
+      <td><button class="expand-btn" id="btn-4" onclick="event.stopPropagation();toggleDetail(4)">+</button></td>
+    </tr><tr class="detail-row" id="detail-4"><td colspan="8">Adobe is free in every classroom. Crayola needs a reason to stay on the desk. Covers curriculum kits, school sales team and district pilots.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">5</td>
+      <td style="font-weight:500;">Retail Premiumization</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$4M</td>
+      <td class="total-val">~$9M</td>
+      <td class="budget-val" style="color:#639922;">3.9x</td>
+      <td><button class="expand-btn" id="btn-5" onclick="event.stopPropagation();toggleDetail(5)">+</button></td>
+    </tr><tr class="detail-row" id="detail-5"><td colspan="8">Toy aisle doubles profit margins versus school supply aisle. Already proven in UK expansion. Covers negotiations, packaging and retailer incentives.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">6</td>
+      <td style="font-weight:500;">Adult Creativity Line</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$2M</td>
+      <td class="total-val">~$6M</td>
+      <td class="budget-val" style="color:#639922;">3.3x</td>
+      <td><button class="expand-btn" id="btn-6" onclick="event.stopPropagation();toggleDetail(6)">+</button></td>
+    </tr><tr class="detail-row" id="detail-6"><td colspan="8">50%+ of buyers have no kids. Revenue stream hiding in our own sales data. Covers product extension, branding and marketing.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">7</td>
+      <td style="font-weight:500;">Washable &amp; Safe All Lines</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y2">2027</span></td>
+      <td class="budget-val">$1M</td>
+      <td class="total-val">~$8M</td>
+      <td class="tbd" style="">—</td>
+      <td><button class="expand-btn" id="btn-7" onclick="event.stopPropagation();toggleDetail(7)">+</button></td>
+    </tr><tr class="detail-row" id="detail-7"><td colspan="8">Depends on project 01. Year 1 = preparation and supplier research. Revenue starts Year 3.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">8</td>
+      <td style="font-weight:500;">ColorCycle 2.0</td>
+      <td><span class="badge h1">H1</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$1M</td>
+      <td class="total-val">~$4M</td>
+      <td class="budget-val" style="color:#639922;">1.8x</td>
+      <td><button class="expand-btn" id="btn-8" onclick="event.stopPropagation();toggleDetail(8)">+</button></td>
+    </tr><tr class="detail-row" id="detail-8"><td colspan="8">Current program converts crayons to fuel — not circular. Real take-back program builds the sustainability story. Indirect revenue via brand value.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">9</td>
+      <td style="font-weight:500;">Analog+ Hybrid Line</td>
+      <td><span class="badge h2">H2</span></td>
+      <td><span class="badge y2">2027</span></td>
+      <td class="budget-val">$2M</td>
+      <td class="total-val">~$12M</td>
+      <td class="tbd" style="">—</td>
+      <td><button class="expand-btn" id="btn-9" onclick="event.stopPropagation();toggleDetail(9)">+</button></td>
+    </tr><tr class="detail-row" id="detail-9"><td colspan="8">AR companion makes physical drawing relevant again. Year 1 = technology partner search. Needs 12–18 months before launch.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">10</td>
+      <td style="font-weight:500;">Crayola Experience Expansion</td>
+      <td><span class="badge h2">H2</span></td>
+      <td><span class="badge y2">2027</span></td>
+      <td class="budget-val">$2M</td>
+      <td class="total-val">~$18M</td>
+      <td class="tbd" style="">—</td>
+      <td><button class="expand-btn" id="btn-10" onclick="event.stopPropagation();toggleDetail(10)">+</button></td>
+    </tr><tr class="detail-row" id="detail-10"><td colspan="8">Each venue generates higher margin than retail. Year 1 = site selection and architectural planning. Build-out takes 18–24 months.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">11</td>
+      <td style="font-weight:500;">Expert Co-Creation Program</td>
+      <td><span class="badge h2">H2</span></td>
+      <td><span class="badge y2">2027</span></td>
+      <td class="budget-val">$1M</td>
+      <td class="total-val">~$5M</td>
+      <td class="tbd" style="">—</td>
+      <td><button class="expand-btn" id="btn-11" onclick="event.stopPropagation();toggleDetail(11)">+</button></td>
+    </tr><tr class="detail-row" id="detail-11"><td colspan="8">Converts brand equity into third-party credibility. Year 1 = partnership outreach and framework development.</td></tr><tr class="project-row">
+      <td style="color:var(--text-tertiary);font-size:12px;">12</td>
+      <td style="font-weight:500;">Crayola Creative Platform</td>
+      <td><span class="badge h3">H3</span></td>
+      <td><span class="badge y1">2026</span></td>
+      <td class="budget-val">$3M</td>
+      <td class="tbd">TBD at 2027</td>
+      <td class="tbd" style="">—</td>
+      <td><button class="expand-btn" id="btn-12" onclick="event.stopPropagation();toggleDetail(12)">+</button></td>
+    </tr><tr class="detail-row" id="detail-12"><td colspan="8">Seed budget only. Total investment TBD at Year 2 once concept is validated. The platform that makes Crayola the ecosystem, not just the crayon.</td></tr><tr class="total-row"><td colspan="4">Total</td><td class="budget-val">$30M</td><td class="total-val">~$105M + H3</td><td class="budget-val" style="color:#639922;">~3x</td><td></td></tr></tbody>
+      </table>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Year 1 budget by horizon</div>
+        <div style="position:relative;width:100%;height:180px;"><canvas id="donut1" width="1094" height="360" style="display: block; box-sizing: border-box; height: 180px; width: 547px;"></canvas></div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#639922;"></span>H1 — Protect core<span class="legend-val">$21M · 70%</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#378ADD;"></span>H2 — Build next<span class="legend-val">$6M · 20%</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#BA7517;"></span>H3 — Future bet<span class="legend-val">$3M · 10%</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Year 1 budget by project</div>
+        <div id="bars"><div class="bar-row"><div class="bar-name">Screen Break Subscriptio…</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#639922;"><span>$5M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Educator Partnership Pro…</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#639922;"><span>$4M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Retail Premiumization</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#639922;"><span>$4M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Plant-Based Reformulatio…</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:#639922;"><span>$3M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Crayola Creative Platfor…</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:#BA7517;"><span>$3M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Ultra-Clean Certified Li…</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#639922;"><span>$2M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Adult Creativity Line</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#639922;"><span>$2M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Analog+ Hybrid Line</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#378ADD;"><span>$2M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Crayola Experience Expan…</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#378ADD;"><span>$2M</span></div></div><div class="bar-amt"></div></div><div class="bar-row"><div class="bar-name">Washable &amp; Safe All Line…</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#639922;"></div></div><div class="bar-amt">$1M</div></div><div class="bar-row"><div class="bar-name">ColorCycle 2.0</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#639922;"></div></div><div class="bar-amt">$1M</div></div><div class="bar-row"><div class="bar-name">Expert Co-Creation Progr…</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#378ADD;"></div></div><div class="bar-amt">$1M</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE TAB -->
+  <div id="tab-timeline" class="tab-content">
+    <div class="banner"><strong>How to read this:</strong> Solid bars = active investment and execution. Dashed bars = preparation and planning phase. Projects deferred to Year 2 start with a planning budget in Year 1 to ensure no delays.</div>
+    <div class="card">
+      <div class="card-title">Project roadmap — 3 year view</div>
+      <div class="timeline-grid">
+        <div class="tg-header">Project</div>
+        <div class="tg-header" style="border-left:0.5px solid var(--border);">Year 1 · 2026–27</div>
+        <div class="tg-header" style="border-left:0.5px solid var(--border);">Year 2 · 2027–28</div>
+        <div class="tg-header" style="border-left:0.5px solid var(--border);">Year 3 · 2028–29</div>
+        <div id="timeline-rows" style="display:contents;"><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Plant-Based Reformulation</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Launch &amp; rollout</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Scale</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">Full line</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Ultra-Clean Certified Line</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Expand SKUs</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">Full range</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Screen Break Subscription</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Platform + launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Scale to 100K+</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">International</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Educator Partnership</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Pilots</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">National rollout</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">Global</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Retail Premiumization</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Negotiations</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Full rollout</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">International</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Adult Creativity Line</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Scale</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">Full range</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>Washable &amp; Safe All Lines</div><div class="tg-cell"><div class="tg-prep" style="border-color:#639922;color:#639922;width:100%;">Prep</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">Scale</div></div><div class="tg-name"><span class="badge h1" style="margin-right:8px;">H1</span>ColorCycle 2.0</div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.75;">Scale nationally</div></div><div class="tg-cell"><div class="tg-bar" style="background:#639922;width:100%;opacity:0.5;">International</div></div><div class="tg-name"><span class="badge h2" style="margin-right:8px;">H2</span>Analog+ Hybrid Line</div><div class="tg-cell"><div class="tg-prep" style="border-color:#378ADD;color:#378ADD;width:100%;">R&amp;D + partner</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.75;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.5;">Scale</div></div><div class="tg-name"><span class="badge h2" style="margin-right:8px;">H2</span>Experience Expansion</div><div class="tg-cell"><div class="tg-prep" style="border-color:#378ADD;color:#378ADD;width:100%;">Planning</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.75;">Build venues</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.5;">Open + operate</div></div><div class="tg-name"><span class="badge h2" style="margin-right:8px;">H2</span>Expert Co-Creation</div><div class="tg-cell"><div class="tg-prep" style="border-color:#378ADD;color:#378ADD;width:100%;">Partner outreach</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.75;">Launch</div></div><div class="tg-cell"><div class="tg-bar" style="background:#378ADD;width:100%;opacity:0.5;">Expand</div></div><div class="tg-name"><span class="badge h3" style="margin-right:8px;">H3</span>Crayola Platform</div><div class="tg-cell"><div class="tg-prep" style="border-color:#BA7517;color:#BA7517;width:100%;">Seed + research</div></div><div class="tg-cell"><div class="tg-bar" style="background:#BA7517;width:100%;opacity:0.75;">Concept build</div></div><div class="tg-cell"><div class="tg-bar" style="background:#BA7517;width:100%;opacity:0.5;">Beta launch</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE TAB -->
+  <div id="tab-revenue" class="tab-content">
+    <div class="banner"><strong>Basis for estimates:</strong> Revenue projections are based on market data, comparable launches and conservative assumptions. H2 and H3 revenue is not projected here — too early to estimate responsibly. All figures are 2027–28 estimates from H1 projects only.</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Estimated 2027–28 revenue — H1 projects</div>
+        <div style="position:relative;width:100%;height:260px;"><canvas id="revenueChart" height="0" style="display: block; box-sizing: border-box; height: 0px; width: 0px;" width="0"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Investment vs. estimated return per project</div>
+        <div id="rev-detail">
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Plant-Based Reformulation</div>
+        <div class="rev-invest" style="margin-top:2px;">$3M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$8–12M</strong></div>
+        <span class="roi-badge">3.3x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Ultra-Clean Certified Line</div>
+        <div class="rev-invest" style="margin-top:2px;">$2M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$10–15M</strong></div>
+        <span class="roi-badge">6.3x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Screen Break Subscription</div>
+        <div class="rev-invest" style="margin-top:2px;">$5M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$18–21M</strong></div>
+        <span class="roi-badge">3.9x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Educator Partnership Program</div>
+        <div class="rev-invest" style="margin-top:2px;">$4M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$6–9M</strong></div>
+        <span class="roi-badge">1.9x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Retail Premiumization</div>
+        <div class="rev-invest" style="margin-top:2px;">$4M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$15–20M</strong></div>
+        <span class="roi-badge">4.4x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">Adult Creativity Line</div>
+        <div class="rev-invest" style="margin-top:2px;">$2M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$8–12M</strong></div>
+        <span class="roi-badge">5x ROI</span>
+      </div>
+    </div>
+  
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">ColorCycle 2.0</div>
+        <div class="rev-invest" style="margin-top:2px;">$1M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$2–3M</strong></div>
+        <span class="roi-badge">2.5x ROI</span>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Portfolio return summary</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="metric" style="border:none;background:var(--bg-secondary);">
+          <div class="metric-label">Total H1 investment</div>
+          <div class="metric-value">$22M</div>
+          <div class="metric-sub">Year 1 only</div>
+        </div>
+        <div class="metric" style="border:none;background:var(--bg-secondary);">
+          <div class="metric-label">Projected 2027–28 revenue</div>
+          <div class="metric-value">$67–92M</div>
+          <div class="metric-sub">Conservative range</div>
+        </div>
+        <div class="metric" style="border:none;background:var(--bg-secondary);">
+          <div class="metric-label">Return on investment</div>
+          <div class="metric-value" style="color:#639922;">3–4x</div>
+          <div class="metric-sub">By Year 2 from H1 alone</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULATOR TAB -->
+  <div id="tab-calculator" class="tab-content">
+    <div class="banner"><strong>Budget calculator:</strong> Adjust the total innovation budget and see how it distributes across horizons following the 70/20/10 framework. The calculator also estimates return based on historical H1 performance assumptions.</div>
+    <div class="calc-grid">
+      <div class="card">
+        <div class="card-title">Adjust budget</div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Total innovation budget</span>
+            <span class="slider-val" id="total-val">$30M</span>
+          </div>
+          <input type="range" min="10" max="80" value="30" step="1" id="total-slider" oninput="updateCalc()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">H1 allocation %</span>
+            <span class="slider-val" id="h1-pct-val">70%</span>
+          </div>
+          <input type="range" min="50" max="90" value="70" step="5" id="h1-slider" oninput="updateCalc()" style="accent-color:#639922;">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">H2 allocation %</span>
+            <span class="slider-val" id="h2-pct-val">20%</span>
+          </div>
+          <input type="range" min="5" max="40" value="20" step="5" id="h2-slider" oninput="updateCalc()" style="accent-color:#378ADD;">
+        </div>
+
+        <div class="calc-result">
+          <div class="calc-result-row"><span style="color:var(--text-secondary);">H1 budget</span><span id="h1-amt" style="color:#639922;font-weight:500;">$21M</span></div>
+          <div class="calc-result-row"><span style="color:var(--text-secondary);">H2 budget</span><span id="h2-amt" style="color:#378ADD;font-weight:500;">$6M</span></div>
+          <div class="calc-result-row"><span style="color:var(--text-secondary);">H3 budget</span><span id="h3-amt" style="color:#BA7517;font-weight:500;">$3M</span></div>
+          <div class="calc-result-row"><span>Total</span><span id="total-check">$30M</span></div>
+        </div>
+        <div class="calc-note" id="balance-note"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Projected impact</div>
+        <div style="position:relative;width:100%;height:220px;"><canvas id="calcChart" height="0" style="display: block; box-sizing: border-box; height: 0px; width: 0px;" width="0"></canvas></div>
+        <div class="calc-result" style="margin-top:1rem;">
+          <div class="calc-result-row"><span style="color:var(--text-secondary);">Estimated 2027–28 revenue</span><span id="est-rev" style="font-weight:500;">$63–$88M</span></div>
+          <div class="calc-result-row"><span style="color:var(--text-secondary);">Projected ROI (2027–28)</span><span id="est-roi" class="roi-badge">2.5x</span></div>
+          <div class="calc-result-row"><span>% of Crayola revenue</span><span id="rev-pct" style="color:var(--text-secondary);">3.1% of revenue</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Crayola · Organizational Innovation &amp; Change · Team B</div>
+</div>
+
+<script>
+const projects = [
+  { id:1,  name:"Plant-Based Reformulation",    horizon:"H1", starts:"2026", budget:3, total:12,  revenueMin:8,  revenueMax:12, rationale:"15 states + EU restricting petroleum-based products. Regulatory risk is active now. Covers launch, positioning and retail rollout." , roi:"2.5x" },
+  { id:2,  name:"Ultra-Clean Certified Line",    horizon:"H1", starts:"2026", budget:2, total:7,   revenueMin:10, revenueMax:15, rationale:"Parents reading labels. Third-party certification commands 20–30% price premium. Covers certification, premium packaging and launch." , roi:"3.2x" },
+  { id:3,  name:"Screen Break Subscription",     horizon:"H1", starts:"2026", budget:5, total:14,  revenueMin:18, revenueMax:21, rationale:"65% of parents buy craft kits to reduce screen time. 50K subscribers at $30/month = $18M ARR. Covers platform build, kit design and marketing." , roi:"3.6x" },
+  { id:4,  name:"Educator Partnership Program",  horizon:"H1", starts:"2026", budget:4, total:10,  revenueMin:6,  revenueMax:9,  rationale:"Adobe is free in every classroom. Crayola needs a reason to stay on the desk. Covers curriculum kits, school sales team and district pilots." , roi:"1.9x" },
+  { id:5,  name:"Retail Premiumization",         horizon:"H1", starts:"2026", budget:4, total:9,   revenueMin:15, revenueMax:20, rationale:"Toy aisle doubles profit margins versus school supply aisle. Already proven in UK expansion. Covers negotiations, packaging and retailer incentives." , roi:"3.9x" },
+  { id:6,  name:"Adult Creativity Line",         horizon:"H1", starts:"2026", budget:2, total:6,   revenueMin:8,  revenueMax:12, rationale:"50%+ of buyers have no kids. Revenue stream hiding in our own sales data. Covers product extension, branding and marketing." , roi:"3.3x" },
+  { id:7,  name:"Washable & Safe All Lines",     horizon:"H1", starts:"2027", budget:1, total:8,   revenueMin:0,  revenueMax:0,  rationale:"Depends on project 01. Year 1 = preparation and supplier research. Revenue starts Year 3." , roi:"—" },
+  { id:8,  name:"ColorCycle 2.0",                horizon:"H1", starts:"2026", budget:1, total:4,   revenueMin:2,  revenueMax:3,  rationale:"Current program converts crayons to fuel — not circular. Real take-back program builds the sustainability story. Indirect revenue via brand value." , roi:"1.8x" },
+  { id:9,  name:"Analog+ Hybrid Line",           horizon:"H2", starts:"2027", budget:2, total:12,  revenueMin:0,  revenueMax:0,  rationale:"AR companion makes physical drawing relevant again. Year 1 = technology partner search. Needs 12–18 months before launch." , roi:"—" },
+  { id:10, name:"Crayola Experience Expansion",  horizon:"H2", starts:"2027", budget:2, total:18,  revenueMin:0,  revenueMax:0,  rationale:"Each venue generates higher margin than retail. Year 1 = site selection and architectural planning. Build-out takes 18–24 months." , roi:"—" },
+  { id:11, name:"Expert Co-Creation Program",    horizon:"H2", starts:"2027", budget:1, total:5,   revenueMin:0,  revenueMax:0,  rationale:"Converts brand equity into third-party credibility. Year 1 = partnership outreach and framework development." , roi:"—" },
+  { id:12, name:"Crayola Creative Platform",     horizon:"H3", starts:"2026", budget:3, total:null,revenueMin:0,  revenueMax:0,  rationale:"Seed budget only. Total investment TBD at Year 2 once concept is validated. The platform that makes Crayola the ecosystem, not just the crayon." , roi:"—" }
+];
+
+// ── TABLE ─────────────────────────────────────────────────────
+function renderTable(data) {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  let totalY1 = 0, totalAll = 0;
+  data.forEach(p => {
+    totalY1 += p.budget;
+    if (p.total) totalAll += p.total;
+    const tr = document.createElement('tr');
+    tr.className = 'project-row';
+    tr.onclick = () => toggleDetail(p.id);
+    tr.innerHTML = `
+      <td style="color:var(--text-tertiary);font-size:12px;">${p.id}</td>
+      <td style="font-weight:500;">${p.name}</td>
+      <td><span class="badge ${p.horizon.toLowerCase()}">${p.horizon}</span></td>
+      <td><span class="badge ${p.starts==='2026'?'y1':'y2'}">${p.starts}</span></td>
+      <td class="budget-val">$${p.budget}M</td>
+      <td class="${p.total?'total-val':'tbd'}">${p.total?'~$'+p.total+'M':'TBD at 2027'}</td>
+      <td class="${p.roi && p.roi!=='—'?'budget-val':'tbd'}" style="${p.roi && p.roi!=='—'?'color:#639922;':''}">${p.roi||'—'}</td>
+      <td><button class="expand-btn" id="btn-${p.id}" onclick="event.stopPropagation();toggleDetail(${p.id})">+</button></td>
+    `;
+    tbody.appendChild(tr);
+    const dr = document.createElement('tr');
+    dr.className = 'detail-row';
+    dr.id = 'detail-' + p.id;
+    dr.innerHTML = `<td colspan="8">${p.rationale}</td>`;
+    tbody.appendChild(dr);
+  });
+  const tr = document.createElement('tr');
+  tr.className = 'total-row';
+  tr.innerHTML = `<td colspan="4">Total</td><td class="budget-val">$${totalY1}M</td><td class="total-val">~$${totalAll}M + H3</td><td class="budget-val" style="color:#639922;">~3x</td><td></td>`;
+  tbody.appendChild(tr);
+}
+
+function toggleDetail(id) {
+  const dr = document.getElementById('detail-'+id);
+  const btn = document.getElementById('btn-'+id);
+  if (!dr) return;
+  const open = dr.classList.toggle('open');
+  btn.textContent = open ? '−' : '+';
+}
+
+function filterTable(f) {
+  document.querySelectorAll('.pill').forEach(p => {
+    p.className = 'pill';
+    if (p.textContent.includes('All') && f==='all') p.classList.add('active-all');
+    if (p.textContent.includes('H1') && f==='H1') p.classList.add('active-h1');
+    if (p.textContent.includes('H2') && f==='H2') p.classList.add('active-h2');
+    if (p.textContent.includes('H3') && f==='H3') p.classList.add('active-h3');
+    if (p.textContent.includes('2026') && f==='2026') p.classList.add('active-y1');
+  });
+  const filtered = f==='all'?projects:f==='2026'?projects.filter(p=>p.starts==='2026'):projects.filter(p=>p.horizon===f);
+  renderTable(filtered);
+}
+
+renderTable(projects);
+
+// ── PORTFOLIO CHARTS ──────────────────────────────────────────
+new Chart(document.getElementById('donut1'), {
+  type:'doughnut',
+  data:{labels:['H1','H2','H3'],datasets:[{data:[21,6,3],backgroundColor:['#639922','#378ADD','#BA7517'],borderWidth:0,hoverOffset:4}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw+'M'}}}}
+});
+
+const barsData = [...projects].sort((a,b)=>b.budget-a.budget);
+const maxB = Math.max(...barsData.map(p=>p.budget));
+const hColors = {H1:'#639922',H2:'#378ADD',H3:'#BA7517'};
+const barsDiv = document.getElementById('bars');
+barsData.forEach(p => {
+  const pct = Math.round((p.budget/maxB)*100);
+  const n = p.name.length>24?p.name.substring(0,24)+'…':p.name;
+  barsDiv.innerHTML += `<div class="bar-row"><div class="bar-name">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${hColors[p.horizon]};">${p.budget>=2?'<span>$'+p.budget+'M</span>':''}</div></div><div class="bar-amt">${p.budget<2?'$'+p.budget+'M':''}</div></div>`;
+});
+
+// ── TIMELINE ──────────────────────────────────────────────────
+const timelineData = [
+  {name:"Plant-Based Reformulation",   h:"H1", y1:"Launch & rollout",  y2:"Scale",            y3:"Full line"},
+  {name:"Ultra-Clean Certified Line",  h:"H1", y1:"Launch",            y2:"Expand SKUs",      y3:"Full range"},
+  {name:"Screen Break Subscription",   h:"H1", y1:"Platform + launch", y2:"Scale to 100K+",   y3:"International"},
+  {name:"Educator Partnership",        h:"H1", y1:"Pilots",            y2:"National rollout",  y3:"Global"},
+  {name:"Retail Premiumization",       h:"H1", y1:"Negotiations",      y2:"Full rollout",      y3:"International"},
+  {name:"Adult Creativity Line",       h:"H1", y1:"Launch",            y2:"Scale",            y3:"Full range"},
+  {name:"Washable & Safe All Lines",   h:"H1", y1:"Prep",              y2:"Launch",           y3:"Scale"},
+  {name:"ColorCycle 2.0",              h:"H1", y1:"Launch",            y2:"Scale nationally", y3:"International"},
+  {name:"Analog+ Hybrid Line",         h:"H2", y1:"R&D + partner",     y2:"Launch",           y3:"Scale"},
+  {name:"Experience Expansion",        h:"H2", y1:"Planning",          y2:"Build venues",     y3:"Open + operate"},
+  {name:"Expert Co-Creation",          h:"H2", y1:"Partner outreach",  y2:"Launch",           y3:"Expand"},
+  {name:"Crayola Platform",            h:"H3", y1:"Seed + research",   y2:"Concept build",    y3:"Beta launch"},
+];
+
+const rowsEl = document.getElementById('timeline-rows');
+
+timelineData.forEach(t => {
+  const color = hColors[t.h];
+  const isPrep1 = t.h !== 'H1' || t.name.includes('Washable');
+  rowsEl.innerHTML += `<div class="tg-name"><span class="badge ${t.h.toLowerCase()}" style="margin-right:8px;">${t.h}</span>${t.name}</div>`;
+  rowsEl.innerHTML += `<div class="tg-cell">${isPrep1?`<div class="tg-prep" style="border-color:${color};color:${color};width:100%;">${t.y1}</div>`:`<div class="tg-bar" style="background:${color};width:100%;">${t.y1}</div>`}</div>`;
+  rowsEl.innerHTML += `<div class="tg-cell"><div class="tg-bar" style="background:${color};width:100%;opacity:0.75;">${t.y2}</div></div>`;
+  rowsEl.innerHTML += `<div class="tg-cell"><div class="tg-bar" style="background:${color};width:100%;opacity:0.5;">${t.y3}</div></div>`;
+});
+
+// ── REVENUE CHART ─────────────────────────────────────────────
+const h1Rev = projects.filter(p=>p.horizon==='H1'&&p.revenueMax>0);
+new Chart(document.getElementById('revenueChart'), {
+  type:'bar',
+  data:{
+    labels: h1Rev.map(p=>p.name.length>18?p.name.substring(0,18)+'…':p.name),
+    datasets:[
+      {label:'Investment',data:h1Rev.map(p=>p.budget),backgroundColor:'rgba(99,153,34,0.3)',borderColor:'#639922',borderWidth:1.5},
+      {label:'Est. revenue (min)',data:h1Rev.map(p=>p.revenueMin),backgroundColor:'rgba(55,138,221,0.3)',borderColor:'#378ADD',borderWidth:1.5},
+      {label:'Est. revenue (max)',data:h1Rev.map(p=>p.revenueMax),backgroundColor:'rgba(55,138,221,0.15)',borderColor:'#378ADD',borderWidth:1,borderDash:[4,2]},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}}},scales:{x:{ticks:{font:{size:10},maxRotation:35}},y:{ticks:{callback:v=>'$'+v+'M',font:{size:11}}}}}
+});
+
+const revDetail = document.getElementById('rev-detail');
+h1Rev.forEach(p => {
+  const roi = p.revenueMin > 0 ? Math.round((p.revenueMin + p.revenueMax) / 2 / p.budget * 10) / 10 : null;
+  revDetail.innerHTML += `
+    <div class="rev-row">
+      <div style="flex:1;">
+        <div class="rev-name">${p.name}</div>
+        <div class="rev-invest" style="margin-top:2px;">$${p.budget}M invested</div>
+      </div>
+      <div style="flex:2;padding-left:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Est. 2027–28: <strong style="color:var(--text-primary);">$${p.revenueMin}–${p.revenueMax}M</strong></div>
+        ${roi?`<span class="roi-badge">${roi}x ROI</span>`:'<span style="font-size:11px;color:var(--text-tertiary);">Revenue from Year 3</span>'}
+      </div>
+    </div>
+  `;
+});
+
+// ── CALCULATOR ────────────────────────────────────────────────
+let calcChart = null;
+
+function updateCalc() {
+  const total = parseInt(document.getElementById('total-slider').value);
+  const h1pct = parseInt(document.getElementById('h1-slider').value);
+  const h2pct = parseInt(document.getElementById('h2-slider').value);
+  const h3pct = Math.max(0, 100 - h1pct - h2pct);
+
+  const h1 = Math.round(total * h1pct / 100);
+  const h2 = Math.round(total * h2pct / 100);
+  const h3 = total - h1 - h2;
+
+  document.getElementById('total-val').textContent = '$' + total + 'M';
+  document.getElementById('h1-pct-val').textContent = h1pct + '%';
+  document.getElementById('h2-pct-val').textContent = h2pct + '%';
+  document.getElementById('h1-amt').textContent = '$' + h1 + 'M';
+  document.getElementById('h2-amt').textContent = '$' + h2 + 'M';
+  document.getElementById('h3-amt').textContent = '$' + Math.max(0,h3) + 'M';
+  document.getElementById('total-check').textContent = '$' + total + 'M';
+  document.getElementById('rev-pct').textContent = (total / 982 * 100).toFixed(1) + '% of revenue';
+
+  const estRevMin = Math.round(h1 * 3);
+  const estRevMax = Math.round(h1 * 4.2);
+  const roi = ((estRevMin + estRevMax) / 2 / total).toFixed(1);
+  document.getElementById('est-rev').textContent = '$' + estRevMin + '–$' + estRevMax + 'M';
+  document.getElementById('est-roi').textContent = roi + 'x';
+
+  const note = h1pct + h2pct > 100
+    ? '⚠️ H1 + H2 exceed 100%. Adjust to leave room for H3.'
+    : h3 < 0 ? '⚠️ H3 budget is negative. Reduce H1 or H2.' : '';
+  document.getElementById('balance-note').textContent = note;
+
+  if (calcChart) calcChart.destroy();
+  calcChart = new Chart(document.getElementById('calcChart'), {
+    type:'doughnut',
+    data:{labels:['H1','H2','H3'],datasets:[{data:[h1,h2,Math.max(0,h3)],backgroundColor:['#639922','#378ADD','#BA7517'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw+'M'}}}}
+  });
+}
+
+updateCalc();
+
+// ── TAB SWITCHING ─────────────────────────────────────────────
+function switchTab(event, name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+
+
+</body></html>
